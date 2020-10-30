@@ -1,0 +1,88 @@
+//video:  https://youtu.be/vdrm3srpRLs
+//Low light, counts up, high pitch noise
+//Medium light, counts down, low pitch noise
+//Under flashlight, LED does crazy, low noise.
+//Pitch variation due to light feedback loop
+
+int LED1 = 6;
+int LED2 = 9;
+int LED3 = 10;
+int LED4 = 11;
+
+int framecount = 1;
+
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+  // initialize digital pin LED_BUILTIN as an output.
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+  pinMode(A0, INPUT);
+
+  Serial.begin(9600);
+}
+
+// the loop function runs over and over again forever
+void loop() {
+
+  int sensorReading = analogRead(A0);
+  Serial.println(sensorReading);
+  int thisPitch = map(sensorReading, 250, 800, 120, 4500);
+  tone(3, thisPitch, 20);
+  delay(50);
+
+  if (digitalRead(A0) == HIGH) {
+    framecount ++ ;
+
+  } else {
+    framecount -- ;
+  }
+
+  if (framecount > 5) {
+    framecount = 1;
+  }
+  if (framecount < 1) {
+    framecount = 5;
+  }
+  frame(framecount);
+
+}
+
+int frame(int framecount) {
+  //Serial.println(framecount);
+  switch (framecount) {
+    case 1:
+      digitalWrite(LED1, LOW);
+      digitalWrite(LED2, LOW);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+    case 2:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, LOW);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+    case 3:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+    case 4:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, LOW);
+      break;
+    case 5:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH);
+      break;
+  }
+
+}
