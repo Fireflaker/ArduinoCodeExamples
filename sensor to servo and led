@@ -1,0 +1,83 @@
+int sensorthresholdnumber = 500
+//shall be between 0 to 1024
+
+#include <Servo.h>
+int servoPin = 4;
+Servo Servo1;
+int LED1 = 6;
+int LED2 = 9;
+int LED3 = 10;
+int LED4 = 11;
+int framecount = 1;
+
+void setup() {
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+  pinMode(A0, INPUT);
+
+  Serial.begin(9600);
+  Servo1.attach(servoPin);
+}
+void loop() {
+
+  int sensorReading = analogRead(A0);
+  Serial.println(sensorReading);
+
+  if (sensorReading > sensorthresholdnumber) {
+    framecount ++ ;
+    Servo1.write(0);
+  } else {
+    framecount -- ;
+    Servo1.write(180);
+  }
+
+  if (framecount > 5) {
+    framecount = 1;
+  }
+  if (framecount < 1) {
+    framecount = 5;
+  }
+  frame(framecount);
+
+  delay(100);
+  
+}
+
+int frame(int framecount) {
+  //Serial.println(framecount);
+  switch (framecount) {
+    case 1:
+      digitalWrite(LED1, LOW);
+      digitalWrite(LED2, LOW);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+    case 2:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, LOW);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+    case 3:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+    case 4:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, LOW);
+      break;
+    case 5:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH);
+      break;
+  }
+
+}
