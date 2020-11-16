@@ -1,0 +1,119 @@
+float sensorthresholdupper = 180;
+float sensorthresholdlower = 175;
+
+//shall be between 0 to 1024, corresponds to ADC input voltage 0-approx5v
+//There is a upper and lower bond to prevent frequent events or oscillation
+
+float smoothTemp = 888;
+
+#include <Servo.h>
+// Use servo library
+int servoPin = 4;
+// Indicate servo pin
+Servo Servo1;
+// Rename function as good practice
+int LED1 = 6;
+int LED2 = 7;
+int LED3 = 8;
+int LED4 = 9;
+//Indicate flashing LED warning pins
+int REDLED = 10;
+int GREENLED = 11;
+//Indicate temperature indicator color LED pins
+int framecount = 1;
+//Used to draw animation of flashing light
+
+
+#include "AnalogPin.h"
+
+AnalogPin INA(A0);
+
+uint32_t start, stop;
+uint32_t val;
+
+
+// the setup function runs once when you press reset or power the board
+void setup() {
+
+  pinMode(LED1, OUTPUT);
+  pinMode(LED2, OUTPUT);
+  pinMode(LED3, OUTPUT);
+  pinMode(LED4, OUTPUT);
+  pinMode(REDLED, OUTPUT);
+  pinMode(GREENLED, OUTPUT);
+  pinMode(A0, INPUT);
+  //Initialize PinMode
+  Serial.begin(9600);
+  //For debugging and adjusting sensor thresholds
+  Servo1.attach(servoPin);
+  //As required by servo libarary
+  INA.setSmoothWeight(160);
+
+}
+
+// the loop function runs over and over again forever
+void loop() {
+  float sensorReading = INA.readSmoothed();
+  Serial.println(sensorReading);
+  //Read ADC and print in serial
+  //  int thisPitch = map(sensorReading, 250, 800, 120, 4500);
+  //  tone(3, thisPitch, 20);
+
+  //  int thisAngle = map(sensorReading, 250, 800, 0, 180);
+  //  Servo1.write(thisAngle);
+  //Unimplemented
+
+
+  if (sensorReading > sensorthresholdupper) {
+    //If event, then...
+    framecount ++;
+    if (framecount > 2) {
+      framecount = 1;
+    }
+    //Do animation and keep in bound
+    Servo1.write(15);
+    //Rotate servo to open position
+    digitalWrite(REDLED, HIGH);
+    digitalWrite(GREENLED, LOW);
+    //Red warning light
+
+  } else if (sensorReading < sensorthresholdlower) {
+    framecount = 66;
+    //Shut of 4 LEDs
+    Servo1.write(105);
+    //Rotate servo to close position
+    digitalWrite(REDLED, LOW);
+    digitalWrite(GREENLED, HIGH);
+    //Green go light
+  }
+
+  frame(framecount);
+  //Display animation
+  delay(100);
+  //Singular delay in code, no hanging and expandable
+}
+
+int frame(int framecount) {
+  //Serial.println(framecount);
+  switch (framecount) {
+    case 1:
+      digitalWrite(LED1, LOW);
+      digitalWrite(LED2, LOW);
+      digitalWrite(LED3, HIGH);
+      digitalWrite(LED4, HIGH);
+      break;
+    case 2:
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+    case 66:
+      digitalWrite(LED1, LOW);
+      digitalWrite(LED2, LOW);
+      digitalWrite(LED3, LOW);
+      digitalWrite(LED4, LOW);
+      break;
+  }
+  //Function to toggle between the 4 LEDs
+}
